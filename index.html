@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>vmatviishyn — ask me anything</title>
+<meta name="description" content="Vitalii Matviishyn's portfolio, as an agent. Ask about projects, skills, or availability." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0c0d0c;
+    --bg-2:#121413;
+    --bg-3:#181b19;
+    --fg:#e4e6df;
+    --muted:#7a7f77;
+    --dim:#383d39;
+    --line:#1e221f;
+    --accent:#8ad990;
+    --accent-2:#e6c46a;
+    --accent-3:#7fb0e0;
+    --red:#e87878;
+    --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  body{
+    min-height:100vh;
+    background-image:
+      radial-gradient(1200px 600px at 85% -10%, rgba(138,217,144,.05), transparent 55%),
+      radial-gradient(900px 500px at -10% 110%, rgba(230,196,106,.04), transparent 60%);
+  }
+  ::selection{background:var(--accent);color:#0c0d0c}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px dashed transparent}
+  a:hover{border-bottom-color:var(--accent)}
+  button{font-family:inherit}
+
+  .app{max-width:860px;margin:0 auto;padding:20px 20px 140px;min-height:100vh;display:flex;flex-direction:column}
+
+  /* header */
+  header{
+    display:flex;align-items:center;gap:14px;padding:6px 2px 18px;
+    border-bottom:1px solid var(--line);margin-bottom:24px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600}
+  .brand .bullet{width:10px;height:10px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 0 var(--accent);animation:pulse 2.2s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(138,217,144,.55)}100%{box-shadow:0 0 0 10px rgba(138,217,144,0)}}
+  header .spacer{flex:1}
+  header .meta{color:var(--muted);font-size:12px;letter-spacing:.06em}
+  header .meta b{color:var(--fg);font-weight:500}
+
+  /* intro */
+  .intro{padding:16px 0 10px}
+  .intro h1{margin:0;font-size:28px;line-height:1.2;font-weight:600;letter-spacing:-.01em}
+  .intro h1 .acc{color:var(--accent)}
+  .intro p{margin:10px 0 0 0;color:var(--muted);max-width:62ch;font-size:14px}
+  .intro p code{background:var(--bg-2);border:1px solid var(--line);padding:1px 6px;border-radius:3px;color:var(--fg);font-size:12.5px}
+
+  /* suggestions */
+  .suggest{
+    display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 8px;
+  }
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 12px;border:1px solid var(--line);border-radius:999px;
+    background:var(--bg-2);color:var(--fg);font-size:12.5px;cursor:pointer;
+    transition:border-color .18s, background .18s, transform .12s;
+  }
+  .chip:hover{border-color:var(--accent);background:rgba(138,217,144,.06);transform:translateY(-1px)}
+  .chip .arr{color:var(--muted);font-size:11px}
+
+  /* conversation */
+  .convo{display:flex;flex-direction:column;gap:20px;margin-top:24px}
+
+  .msg{display:flex;flex-direction:column;gap:10px;animation:in .35s ease both}
+  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .msg-head{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+  .msg-head .who{color:var(--fg);font-weight:600;letter-spacing:.02em}
+  .msg-head .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .msg.user .dot{background:var(--accent-3)}
+  .msg.agent .dot{background:var(--accent)}
+
+  .bubble{
+    padding:14px 16px;border-radius:6px;border:1px solid var(--line);
+    background:var(--bg-2);white-space:pre-wrap;word-wrap:break-word;
+    font-size:14px;line-height:1.6;
+  }
+  .msg.user .bubble{background:rgba(127,176,224,.06);border-color:rgba(127,176,224,.22)}
+  .bubble strong{color:var(--accent)}
+  .bubble code{background:var(--bg-3);border:1px solid var(--line);padding:1px 5px;border-radius:3px;font-size:12.5px}
+  .bubble ul{margin:8px 0;padding-left:20px}
+  .bubble li{margin:3px 0}
+
+  /* tool calls */
+  .tools{display:flex;flex-direction:column;gap:4px;margin:2px 0 0 0;font-size:12px}
+  .tool{
+    display:flex;align-items:center;gap:10px;padding:6px 10px;
+    background:var(--bg-2);border:1px solid var(--line);border-radius:4px;
+    color:var(--muted);
+  }
+  .tool .icon{color:var(--accent-2);font-weight:700}
+  .tool .name{color:var(--fg)}
+  .tool .args{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:420px}
+  .tool.done .icon{color:var(--accent)}
+  .tool.err .icon{color:var(--red)}
+  .tool .spin{display:inline-block;width:10px;height:10px;border:1.5px solid var(--dim);border-top-color:var(--accent-2);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* inline project cards */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media (max-width:640px){.cards{grid-template-columns:1fr}}
+  .card{
+    border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--bg-2);
+    transition:border-color .18s, transform .18s;
+  }
+  .card:hover{border-color:var(--dim);transform:translateY(-1px)}
+  .card h4{margin:0 0 4px 0;font-size:13.5px;font-weight:600;color:var(--fg)}
+  .card .yr{font-size:11px;color:var(--muted);letter-spacing:.06em}
+  .card p{margin:6px 0 0 0;color:var(--muted);font-size:12.5px;line-height:1.55}
+  .card .tags{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+  .card .tag{font-size:10.5px;padding:1px 6px;border:1px solid var(--dim);border-radius:3px;color:var(--fg)}
+
+  /* typing indicator */
+  .typing{display:inline-flex;gap:4px;align-items:center;color:var(--muted);font-size:12px}
+  .typing .d{width:5px;height:5px;background:var(--muted);border-radius:50%;animation:bounce 1.1s infinite}
+  .typing .d:nth-child(2){animation-delay:.12s}
+  .typing .d:nth-child(3){animation-delay:.24s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-4px);opacity:1}}
+
+  /* input */
+  .composer{
+    position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,transparent,var(--bg) 30%);
+    padding:20px 20px 24px;z-index:5;
+  }
+  .composer-inner{max-width:860px;margin:0 auto;position:relative}
+  .composer form{
+    display:flex;gap:10px;align-items:flex-end;
+    border:1px solid var(--line);border-radius:10px;background:var(--bg-2);padding:8px 8px 8px 14px;
+    transition:border-color .18s;
+  }
+  .composer form:focus-within{border-color:var(--accent)}
+  .composer textarea{
+    flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--fg);
+    font-family:var(--mono);font-size:14px;line-height:1.5;padding:8px 0;min-height:22px;max-height:160px;
+  }
+  .composer textarea::placeholder{color:var(--muted)}
+  .send{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;border-radius:7px;border:1px solid var(--accent);
+    background:var(--accent);color:#0c0d0c;font-weight:600;font-size:13px;cursor:pointer;
+    transition:transform .12s, opacity .18s;
+  }
+  .send:hover{transform:translateY(-1px)}
+  .send:disabled{opacity:.4;cursor:not-allowed}
+  .composer .hint{margin-top:8px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:.04em}
+  .composer .hint b{color:var(--fg);font-weight:500}
+
+  /* error / fallback */
+  .banner{
+    margin:14px 0;padding:10px 14px;border:1px solid rgba(232,120,120,.35);
+    background:rgba(232,120,120,.06);color:var(--red);font-size:12.5px;border-radius:5px;
+  }
+  .banner b{color:var(--fg)}
+
+  /* caret */
+  .caret{display:inline-block;width:7px;height:1em;background:var(--accent);margin-left:2px;vertical-align:-2px;animation:blink 1.05s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  @media (max-width:640px){
+    .app{padding:14px 14px 160px}
+    .intro h1{font-size:22px}
+  }
+</style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand"><span class="bullet"></span>vmatviishyn<span style="color:var(--muted);font-weight:400;margin-left:2px">.ai</span></div>
+      <span class="spacer"></span>
+      <span class="meta"><b>status</b> · <span id="status">ready</span></span>
+    </header>
+
+    <section class="intro">
+      <h1>Ask me anything<span class="acc">.</span></h1>
+      <p>This portfolio is an <strong style="color:var(--accent)">agent</strong>, not a page. It runs on Anthropic's API and calls real tools — <code>search_projects</code>, <code>list_skills</code>, <code>get_timeline</code> — to answer you. Ask whatever you'd normally ask in an interview.</p>
+    </section>
+
+    <div class="suggest" id="suggest">
+      <button class="chip" data-q="What have you shipped with RxJS?">What have you shipped with RxJS? <span class="arr">↵</span></button>
+      <button class="chip" data-q="Show me your agentic / MCP work.">Show me your agentic / MCP work. <span class="arr">↵</span></button>
+      <button class="chip" data-q="Tell me about a hard debugging story.">Tell me about a hard bug. <span class="arr">↵</span></button>
+      <button class="chip" data-q="Are you available for contract work? How do I reach you?">Availability &amp; contact <span class="arr">↵</span></button>
+    </div>
+
+    <div class="convo" id="convo" aria-live="polite"></div>
+  </main>
+
+  <div class="composer">
+    <div class="composer-inner">
+      <form id="form" autocomplete="off">
+        <textarea id="input" rows="1" maxlength="2000" placeholder="Ask about projects, skills, a specific bug, availability…"></textarea>
+        <button class="send" id="send" type="submit" aria-label="Send">send ↵</button>
+      </form>
+      <div class="hint">Powered by Claude · <b>Enter</b> to send · <b>Shift+Enter</b> for newline</div>
+    </div>
+  </div>
+
+<script>
+/* ============================================================
+   CONFIG — replace AGENT_ENDPOINT with your Cloudflare Worker URL
+   ============================================================ */
+const AGENT_ENDPOINT = "https://vm-portfolio-agent.vmatviishyn.workers.dev";
+
+/* ============================================================
+   CATALOG — the single source of truth about Vitalii.
+   Tools read from this. Edit this to update the portfolio.
+   ============================================================ */
+const CATALOG = {
+  bio: {
+    name: "Vitalii Matviishyn",
+    role: "Full Stack Engineer",
+    location: "Lviv, Ukraine (UTC+2)",
+    years: 8,
+    availability: "Currently employed",
+    summary: "🌐 Frontend Development & Modern JavaScript – Extensive hands-on experience with Angular, TypeScript, and core JavaScript, complemented by a strong understanding of responsive design principles using CSS frameworks like Bootstrap and SASS/SCSS. ☁️ Microsoft Azure Cloud Services – Practical experience with a range of Azure services including Virtual Machines, App Service, Kubernetes Service, and Azure SQL, alongside expertise in Azure Advisor and Resource Manager. 📦 Full-Stack JavaScript Ecosystem – Solid command of Node.js for backend development, coupled with proficiency in frontend tools like NPM and Webpack, and experience integrating with services like Firebase. 🛠️ Software Engineering Best Practices – Demonstrated ability in unit testing, Git/GitHub for version control, and efficient debugging using JavaScript Development Tools and Visual Studio Code. ✨ Emerging Technology Exploration – Foundational understanding of Gen AI assisted development and Prompt Engineering, indicating an interest in leveraging newer technological capabilities."
+  },
+  contact: {
+    email: "vmatviishyn@gmail.com",
+    github: "https://github.com/matviishynnn",
+    linkedin: "https://linkedin.com/in/matviishynnn"
+  },
+  experience: [
+    {
+      company: "EPAM Systems",
+      roles: [
+        {
+          title: "Middle Software Engineer",
+          period: "Mar 2019 – Present",
+          location: "Lviv"
+        },
+        {
+          title: "Junior Software Engineer",
+          period: "Jul 2018 – Mar 2019",
+          duration: "9 mos",
+          location: "Lviv Region, Ukraine",
+          focus: "FrontEnd"
+        }
+      ]
+    }
+  ],
+  education: [
+    {
+      institution: "Ivan Franko National University of Lviv",
+      degree: "Master's degree, Computer Science",
+      years: "2017 – 2018"
+    },
+    {
+      institution: "Ivan Franko National University of Lviv",
+      degree: "Bachelor's degree, Computer Science",
+      years: "2013 – 2017"
+    }
+  ],
+  certifications: [
+    {
+      name: "Claude Certified Architect - Foundations Early Adopter",
+      issuer: "Anthropic",
+      issued: "Apr 2026",
+      credentialId: "6zwm6u3tevx9"
+    },
+    {
+      name: "Claude Certified Architect - Foundations",
+      issuer: "Anthropic",
+      issued: "Apr 2026",
+      expires: "Oct 2026",
+      credentialId: "ghcms9cacamh",
+      skills: ["AI Engineering", "Anthropic Claude"]
+    },
+    {
+      name: "Microsoft Certified: Azure Fundamentals",
+      issuer: "Microsoft",
+      issued: "Sep 2024",
+      credentialId: "F28B17D5C28B328B",
+      skills: ["Microsoft Azure"]
+    }
+  ],
+  skills: {
+    primary: ["Angular", "TypeScript", "Node.js", "Microsoft Azure"],
+    testing: ["Jasmine", "Karma", "Playwright", "Marble testing"],
+    agents: [
+      "Anthropic SDK",
+      "Model Context Protocol",
+      "Tool design",
+      "Prompt engineering",
+      "Multi-agent orchestration"
+    ],
+    engineeringPractices: [
+      "AI Engineering",
+      "BEM Methodology",
+      "Cloud",
+      "Engineering Excellence",
+      "Front-End Development",
+      "Gen AI Application Development",
+      "Gen AI Assisted Development",
+      "Generative AI Fundamentals",
+      "JavaScript (Frontend)",
+      "Prompt Engineering",
+      "SAP Commerce Cloud (Hybris Commerce)",
+      "Software Engineering Practices",
+      "Unit Testing",
+      "Visual Composition",
+      "OOP",
+      "IT Security"
+    ],
+    technologies: {
+      frontend: [
+        "Angular",
+        "Angular Material",
+        "AngularJS",
+        "ReactJS",
+        "Redux",
+        "RxJS",
+        "JavaScript",
+        "TypeScript",
+        "jQuery",
+        "HTML5 Canvas",
+        "Bootstrap CSS",
+        "CSS",
+        "LESS",
+        "SASS/SCSS",
+        "Cross-browser compatible HTML/CSS markup",
+        "AJAX",
+        "JSON",
+        "Ionic",
+        "Flutter"
+      ],
+      backend: ["Node.js", "Firebase"],
+      azure: [
+        "Microsoft Azure",
+        "Azure Advisor",
+        "Azure AI + Machine Learning",
+        "Azure App Service",
+        "Azure Blueprints",
+        "Azure Container Instances",
+        "Azure Cost Management + Billing",
+        "Azure Developer Tools",
+        "Azure DevOps",
+        "Azure Identity",
+        "Azure Internet of Things",
+        "Azure Key Vault",
+        "Azure Kubernetes Service",
+        "Azure Management and Governance",
+        "Azure Monitor",
+        "Azure Networking",
+        "Azure Policy",
+        "Azure Resource Manager",
+        "Azure SQL",
+        "Azure Tools",
+        "Azure Virtual Machines",
+        "Microsoft Sentinel"
+      ],
+      ai: [
+        "Anthropic Claude",
+        "Claude Code",
+        "Model Context Protocol"
+      ],
+      tooling: [
+        "Git",
+        "GitHub",
+        "NPM",
+        "Webpack",
+        "Postman",
+        "Visual Studio Code",
+        "Atlassian Jira",
+        "Microsoft Outlook",
+        "Microsoft Word"
+      ],
+    }
+  },
+};
+/* ============================================================
+   TOOL IMPLEMENTATIONS — deterministic, run in the browser.
+   The Worker returns tool_use blocks; we execute them here and
+   send the results back for the next turn.
+   ============================================================ */
+const TOOLS = {
+  get_bio: () => CATALOG.bio,
+  get_contact: () => CATALOG.contact,
+  list_skills: ({category} = {}) => {
+    if (category && CATALOG.skills[category]) return { [category]: CATALOG.skills[category] };
+    return CATALOG.skills;
+  },
+  search_projects: ({query} = {}) => {
+    if (!query) return CATALOG.projects.map(p => ({id:p.id, title:p.title, year:p.year, summary:p.summary, tags:p.tags}));
+    const q = query.toLowerCase();
+    const matches = CATALOG.projects.filter(p => {
+      const blob = [p.title, p.summary, p.detail, ...(p.tags||[])].join(" ").toLowerCase();
+      return blob.includes(q) || q.split(/\s+/).some(term => term.length > 2 && blob.includes(term));
+    });
+    return matches.map(p => ({id:p.id, title:p.title, year:p.year, summary:p.summary, tags:p.tags}));
+  },
+  get_project_detail: ({id} = {}) => {
+    const p = CATALOG.projects.find(x => x.id === id);
+    if (!p) return {error: `No project with id "${id}". Available: ${CATALOG.projects.map(x=>x.id).join(", ")}`};
+    return p;
+  },
+  get_timeline: ({limit} = {}) => {
+    return CATALOG.timeline.slice(0, limit || 20);
+  },
+  get_debugging_stories: () => CATALOG.debugging_stories
+};
+
+/* ============================================================
+   UI HELPERS
+   ============================================================ */
+const $ = sel => document.querySelector(sel);
+const convo = $("#convo");
+const input = $("#input");
+const form = $("#form");
+const sendBtn = $("#send");
+const statusEl = $("#status");
+
+let history = []; // {role, content} messages for API
+const MAX_HISTORY_TURNS = 10; // keep last N user+assistant pairs to cap token cost
+let busy = false;
+
+function setStatus(s, color){
+  statusEl.textContent = s;
+  statusEl.style.color = color || "";
+}
+
+function autoGrow(){
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 160) + "px";
+}
+input.addEventListener("input", autoGrow);
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    form.dispatchEvent(new Event("submit", {cancelable:true}));
+  }
+});
+
+document.querySelectorAll(".chip").forEach(btn => {
+  btn.addEventListener("click", () => {
+    input.value = btn.dataset.q;
+    autoGrow();
+    form.dispatchEvent(new Event("submit", {cancelable:true}));
+  });
+});
+
+function escHtml(s){
+  return String(s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+function renderMarkdown(text){
+  // Minimal, safe-ish markdown: bold, inline code, line breaks, bullet lists.
+  const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  let html = esc(text);
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+  // bullet list blocks
+  html = html.replace(/(?:^|\n)((?:- .+\n?)+)/g, (m, block) => {
+    const items = block.trim().split(/\n/).map(l => "<li>" + l.replace(/^- /, "") + "</li>").join("");
+    return "\n<ul>" + items + "</ul>";
+  });
+  return html;
+}
+
+function addMessage(role){
+  const msg = document.createElement("div");
+  msg.className = "msg " + role;
+  msg.innerHTML = `
+    <div class="msg-head"><span class="dot"></span><span class="who">${role === "user" ? "you" : "vitalii"}</span><span class="ts">${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</span></div>
+    <div class="tools"></div>
+    <div class="bubble"></div>
+    <div class="cards" style="display:none"></div>
+  `;
+  convo.appendChild(msg);
+  msg.scrollIntoView({behavior:"smooth", block:"end"});
+  return {
+    el: msg,
+    tools: msg.querySelector(".tools"),
+    bubble: msg.querySelector(".bubble"),
+    cards: msg.querySelector(".cards")
+  };
+}
+
+function addToolCall(toolsEl, name, args){
+  const row = document.createElement("div");
+  row.className = "tool";
+  row.innerHTML = `<span class="spin"></span><span class="name">${escHtml(name)}</span><span class="args">${args ? escHtml(JSON.stringify(args)) : ""}</span>`;
+  toolsEl.appendChild(row);
+  convo.scrollIntoView({behavior:"smooth", block:"end"});
+  return row;
+}
+function completeToolCall(row, ok){
+  row.classList.add(ok ? "done" : "err");
+  row.querySelector(".spin").outerHTML = `<span class="icon">${ok ? "✓" : "✗"}</span>`;
+}
+
+function renderProjectCards(cardsEl, projects){
+  if (!projects || !projects.length) return;
+  cardsEl.style.display = "grid";
+  cardsEl.innerHTML = projects.map(p => `
+    <div class="card">
+      <div class="yr">${escHtml(p.year || "")}</div>
+      <h4>${escHtml(p.title)}</h4>
+      <p>${escHtml(p.summary || "")}</p>
+      <div class="tags">${(p.tags||[]).map(t=>`<span class="tag">${escHtml(t)}</span>`).join("")}</div>
+    </div>
+  `).join("");
+}
+
+function showBanner(msg){
+  const b = document.createElement("div");
+  b.className = "banner";
+  b.innerHTML = msg;
+  convo.appendChild(b);
+}
+
+/* ============================================================
+   AGENTIC LOOP — talk to the Worker, execute tool calls locally,
+   feed results back until the model stops requesting tools.
+   ============================================================ */
+async function runAgent(userText){
+  if (busy) return;
+  busy = true;
+  sendBtn.disabled = true;
+  setStatus("thinking…", "var(--accent-2)");
+
+  // user message
+  const userMsg = addMessage("user");
+  userMsg.bubble.textContent = userText;
+  history.push({role:"user", content:userText});
+
+  // agent message shell
+  const agentMsg = addMessage("agent");
+  agentMsg.bubble.innerHTML = `<span class="typing"><span class="d"></span><span class="d"></span><span class="d"></span></span>`;
+
+  const MAX_TURNS = 6;
+  let allProjectCards = [];
+
+  try {
+    for (let turn = 0; turn < MAX_TURNS; turn++){
+      const trimmed = history.slice(-MAX_HISTORY_TURNS * 2);
+      const res = await fetch(AGENT_ENDPOINT, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          messages: trimmed
+        })
+      });
+
+      if (!res.ok){
+        const t = await res.text();
+        throw new Error(`Worker returned ${res.status}: ${t.slice(0,200)}`);
+      }
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+      // collect any text + tool_use blocks
+      const blocks = data.content || [];
+      const textBlocks = blocks.filter(b => b.type === "text");
+      const toolUses = blocks.filter(b => b.type === "tool_use");
+
+      // stream text into the bubble (non-streaming API — we just render it)
+      if (textBlocks.length){
+        const fullText = textBlocks.map(b => b.text).join("\n\n");
+        agentMsg.bubble.innerHTML = renderMarkdown(fullText);
+      }
+
+      // push assistant turn into history EXACTLY as returned
+      history.push({role:"assistant", content: blocks});
+
+      // no tools -> we're done
+      if (data.stop_reason !== "tool_use" || toolUses.length === 0){
+        break;
+      }
+
+      // execute each tool locally, show UI, feed results back
+      const toolResults = [];
+      for (const tu of toolUses){
+        const uiRow = addToolCall(agentMsg.tools, tu.name, tu.input);
+        try {
+          const fn = TOOLS[tu.name];
+          if (!fn) throw new Error(`Unknown tool: ${tu.name}`);
+          const result = fn(tu.input || {});
+          completeToolCall(uiRow, true);
+
+          // collect project cards for inline rendering
+          if (tu.name === "search_projects" && Array.isArray(result)){
+            allProjectCards = allProjectCards.concat(result);
+          } else if (tu.name === "get_project_detail" && result && !result.error){
+            allProjectCards.push({id:result.id, title:result.title, year:result.year, summary:result.summary, tags:result.tags});
+          }
+
+          toolResults.push({
+            type:"tool_result",
+            tool_use_id: tu.id,
+            content: JSON.stringify(result)
+          });
+        } catch(err){
+          completeToolCall(uiRow, false);
+          toolResults.push({
+            type:"tool_result",
+            tool_use_id: tu.id,
+            content: `Error: ${err.message}`,
+            is_error: true
+          });
+        }
+      }
+      history.push({role:"user", content: toolResults});
+    }
+
+    // render collected project cards, dedup by id
+    if (allProjectCards.length){
+      const seen = new Set();
+      const uniq = allProjectCards.filter(p => !seen.has(p.id) && seen.add(p.id));
+      renderProjectCards(agentMsg.cards, uniq);
+    }
+
+    // if the bubble is still empty (no text blocks), show a fallback
+    if (agentMsg.bubble.textContent.trim() === "" || agentMsg.bubble.querySelector(".typing")){
+      agentMsg.bubble.textContent = "(no response — try rephrasing)";
+    }
+
+    setStatus("ready");
+  } catch(err){
+    console.error(err);
+    agentMsg.bubble.innerHTML = renderStaticFallback(userText, err.message);
+    setStatus("offline — showing static fallback", "var(--red)");
+  } finally {
+    busy = false;
+    sendBtn.disabled = false;
+  }
+}
+
+/* ============================================================
+   FALLBACK — if the Worker is down, still answer with the catalog
+   so the page never looks broken.
+   ============================================================ */
+function renderStaticFallback(userText, errMsg){
+  const q = (userText || "").toLowerCase();
+  let lines = [];
+  lines.push(`<em style="color:var(--muted)">Agent unreachable. Falling back to static data.</em><br/><br/>`);
+
+  // very simple routing
+  let results = [];
+  if (/contact|reach|email|available|hire/.test(q)){
+    const c = CATALOG.contact, b = CATALOG.bio;
+    lines.push(`<strong>Contact</strong><br/>email: <a href="mailto:${escHtml(c.email)}">${escHtml(c.email)}</a><br/>github: <a href="${escHtml(c.github)}">${escHtml(c.github)}</a><br/>linkedin: <a href="${escHtml(c.linkedin)}">${escHtml(c.linkedin)}</a><br/><br/>${escHtml(b.availability)}.`);
+  } else if (/skill|stack|tech/.test(q)){
+    const s = CATALOG.skills;
+    lines.push(`<strong>Skills</strong><br/>` + Object.entries(s).map(([k,v])=>`<b>${escHtml(k)}:</b> ${escHtml(v.join(", "))}`).join("<br/>"));
+  } else {
+    // search projects
+    results = TOOLS.search_projects({query: userText}) || [];
+    if (!results.length) results = CATALOG.projects.slice(0,4);
+    lines.push(`<strong>Projects</strong><br/>` + results.map(p=>`• <b>${escHtml(p.title)}</b> (${escHtml(String(p.year))}) — ${escHtml(p.summary)}`).join("<br/>"));
+  }
+
+  lines.push(`<br/><br/><small style="color:var(--muted)">Error: ${escHtml(errMsg)}</small>`);
+  return lines.join("");
+}
+
+/* ============================================================
+   SUBMIT HANDLER
+   ============================================================ */
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text || busy) return;
+  input.value = "";
+  autoGrow();
+  // hide suggestions after first message
+  const s = document.getElementById("suggest");
+  if (s) s.style.display = "none";
+  runAgent(text);
+});
+
+/* detect if endpoint isn't configured */
+if (AGENT_ENDPOINT.includes("YOUR-WORKER")){
+  const b = document.createElement("div");
+  b.className = "banner";
+  b.innerHTML = `<b>Setup incomplete:</b> edit <code>AGENT_ENDPOINT</code> in index.html to point at your Cloudflare Worker. Until then, the page runs in static fallback mode.`;
+  document.querySelector(".intro").after(b);
+  setStatus("not configured", "var(--red)");
+}
+</script>
+</body>
+</html>
