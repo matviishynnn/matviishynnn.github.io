@@ -169,8 +169,11 @@
   @keyframes blink{50%{opacity:0}}
 
   @media (max-width:640px){
-    .app{padding:14px 14px 160px}
+    .app{padding:14px 14px 180px}
     .intro h1{font-size:22px}
+    .composer{padding:16px 14px max(20px, env(safe-area-inset-bottom))}
+    .composer .hint{display:none}
+    .tool .args{max-width:180px}
   }
 </style>
 </head>
@@ -184,7 +187,7 @@
 
     <section class="intro">
       <h1>Ask me anything<span class="acc">.</span></h1>
-      <p>This portfolio is an <strong style="color:var(--accent)">agent</strong>, not a page. It runs on Anthropic's API and calls real tools — <code>search_projects</code>, <code>list_skills</code>, <code>get_timeline</code> — to answer you. Ask whatever you'd normally ask in an interview.</p>
+      <p>This portfolio is an <strong style="color:var(--accent)">agent</strong>, not a page. It runs on Anthropic's API and calls real tools — <code>search_projects</code>, <code>get_project_detail</code>, <code>get_timeline</code>, <code>list_skills</code>, <code>get_bio</code>, <code>get_experience</code>, <code>get_certifications</code>, <code>get_debugging_stories</code> — to answer you. Ask whatever you'd normally ask in an interview.</p>
     </section>
 
     <div class="suggest" id="suggest">
@@ -378,6 +381,66 @@ const CATALOG = {
       ],
     }
   },
+  projects: [
+    {
+      id: "real-time-dashboard",
+      title: "Real Time Dashboard",
+      year: "2022–present",
+      summary: "Large-scale real-time data dashboard for monitoring and analytics, with live charting, grid views, and cloud-backed data streams.",
+      detail: "Key Engineer on a production real-time dashboard. Responsible for gathering technical and functional requirements, implementing new features, presenting system improvement ideas, and maintaining the codebase. Participated in all scrum ceremonies. Integrated ag-grid for large tabular datasets and Highcharts JS for live charting. Data sourced from Google Cloud Bigtable. CI/CD via Azure DevOps.",
+      tags: ["Angular", "TypeScript", "RxJS", "SCSS", "Highcharts JS", "ag-grid", "Angular Material", "Google Cloud Bigtable", "Azure DevOps", "Karma", "Jasmine", "Sonar", "WhiteSource"]
+    },
+    {
+      id: "banking-app",
+      title: "Banking App",
+      year: "2021–2022",
+      summary: "Cross-platform mobile banking application with MFA, third-party integrations, and reactive state management.",
+      detail: "Engineer on a hybrid mobile banking app built with Ionic (Angular). Implemented new features, wired up third-party integrations, wrote unit tests, and configured MFA using Okta. State managed with Akita and RxJS. Tested on iOS (Xcode) and Android (Android Studio). Backend connectivity handled via Firebase.",
+      tags: ["Ionic", "Angular", "RxJS", "Akita", "TypeScript", "Firebase", "Okta", "Xcode", "Android Studio", "Unit Testing"]
+    },
+    {
+      id: "ecommerce-platform",
+      title: "E-commerce Platform",
+      year: "2018–2021",
+      summary: "Full-featured e-commerce platform with WCAG AA accessibility, Angular SPA features, and jQuery legacy layers.",
+      detail: "Engineer on a large e-commerce platform over 2.5 years. Implemented WCAG Level AA accessibility support, developed new features, and maintained unit test coverage. Stack spanned Angular for new modules, jQuery and Bootstrap for legacy areas, AJAX/JSON for async data, and MySQL as the database. Tooling: JIRA, Bitbucket, Postman.",
+      tags: ["JavaScript", "Angular", "jQuery", "Bootstrap", "LESS", "AJAX", "MySQL", "Accessibility", "WCAG AA", "Unit Testing"]
+    },
+    {
+      id: "planning-poker",
+      title: "Planning Poker",
+      year: "2019",
+      summary: "Real-time collaborative sprint planning tool — teams join a session, vote on story points simultaneously, then reveal estimates together.",
+      detail: "Pet project built with Angular 8 and Firebase. Teams create or join planning sessions; each participant picks a card value in secret, then all votes are revealed at once to surface estimation spread. Firebase Realtime Database drives live sync across all participants with no polling. 88 commits, 7 PRs. Live at https://planing-pocker.firebaseapp.com.",
+      tags: ["Angular", "TypeScript", "SCSS", "Firebase", "Karma", "Protractor", "Angular CLI"],
+      links: { github: "https://github.com/vmatviishyn/planningPoker", live: "https://planing-pocker.firebaseapp.com" }
+    },
+    {
+      id: "meat-shop-app",
+      title: "Meat Shop App",
+      year: "2018",
+      summary: "Food delivery app with recipes, restaurant map, and real-time data — built with ReactJS and Firebase.",
+      detail: "Engineer on a food delivery application featuring a restaurant map (Google Maps), recipe browsing, and delivery workflows. Developed features, fixed defects, worked with the database (Firebase), wrote layouts, and configured the Webpack bundler. First professional project; established strong React/Redux and tooling fundamentals.",
+      tags: ["ReactJS", "Redux", "JavaScript (ES6)", "HTML5", "SCSS", "Webpack", "Firebase", "Google Maps", "Git"]
+    }
+  ],
+  timeline: [
+    { year: "Apr 2022 – present", event: "Key Engineer — Real Time Dashboard at EPAM Systems. Angular + TypeScript + RxJS stack, Google Cloud Bigtable, Azure DevOps CI/CD." },
+    { year: "Mar 2021 – Mar 2022", event: "Engineer — Banking App at EPAM Systems. Ionic (Angular) mobile app with Okta MFA and Akita state management." },
+    { year: "Sep 2018 – Feb 2021", event: "Engineer — E-commerce Platform at EPAM Systems. Angular + jQuery, WCAG AA accessibility, 2.5 years feature development." },
+    { year: "Mar 2018 – May 2018", event: "Engineer — Meat Shop App. First professional project: ReactJS + Redux food delivery app with Google Maps and Firebase." },
+    { year: "2019", event: "Pet project — Planning Poker. Real-time collaborative sprint planning tool built with Angular 8 and Firebase." }
+  ],
+  debugging_stories: [
+    {
+      title: "Marble testing race condition in RxJS pipeline",
+      detail: "On the Real Time Dashboard, a live data subscription intermittently dropped updates under load. The root cause was a switchMap that silently cancelled in-flight requests when new events arrived faster than the debounce window. Diagnosed using Jasmine marble tests to assert emission timing precisely; fixed by replacing switchMap with exhaustMap for idempotent requests and mergeMap for independent ones."
+    },
+    {
+      title: "Okta MFA token refresh loop in Ionic app",
+      detail: "In the Banking App, users were randomly logged out mid-session. Traced it to an Okta silent-refresh race: two concurrent API calls each detected an expired token and both triggered a refresh — the second invalidated the first's new token. Fixed by centralising the refresh in an RxJS shareReplay(1) observable so concurrent callers share a single in-flight refresh rather than each starting their own."
+    }
+  ]
 };
 /* ============================================================
    TOOL IMPLEMENTATIONS — deterministic, run in the browser.
@@ -387,6 +450,9 @@ const CATALOG = {
 const TOOLS = {
   get_bio: () => CATALOG.bio,
   get_contact: () => CATALOG.contact,
+  get_experience: () => CATALOG.experience,
+  get_education: () => CATALOG.education,
+  get_certifications: () => CATALOG.certifications,
   list_skills: ({category} = {}) => {
     if (category && CATALOG.skills[category]) return { [category]: CATALOG.skills[category] };
     return CATALOG.skills;
